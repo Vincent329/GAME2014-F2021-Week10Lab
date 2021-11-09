@@ -11,6 +11,7 @@ public class PlayerBehaviour : MonoBehaviour
     public Transform groundOrigin;
     public float groundRadius;
     public LayerMask groundLayerMask;
+    public float airControlFactor;
 
     [Header("Animation State")]
     private Animator animController;
@@ -32,15 +33,25 @@ public class PlayerBehaviour : MonoBehaviour
     }
 
     private void Move()
-    {
+    {     // Keyboard Input
+        float x = Input.GetAxisRaw("Horizontal");
+        float y = Input.GetAxisRaw("Vertical");
+        // Touch Input
+        Vector2 worldTouch = new Vector2();
+        foreach (var touch in Input.touches)
+        {
+            worldTouch = Camera.main.ScreenToWorldPoint(touch.position);
+        }
+
+        float mass = rigidbody.mass * rigidbody.gravityScale;
+
+        rigidbody.velocity *= 0.99f; // scaling / stopping hack
+
         if (isGrounded)
         {
             //float deltaTime = Time.deltaTime;
 
-            // Keyboard Input
-            float x = Input.GetAxisRaw("Horizontal");
-            float y = Input.GetAxisRaw("Vertical");
-            float jump = Input.GetAxisRaw("Jump");
+       
 
             // Check for Flip
 
@@ -53,27 +64,25 @@ public class PlayerBehaviour : MonoBehaviour
             {
                 animController.SetInteger("AnimationState", (int)PlayerAnimState.IDLE);
             }
-
-            // Touch Input
-            Vector2 worldTouch = new Vector2();
-            foreach (var touch in Input.touches)
-            {
-                worldTouch = Camera.main.ScreenToWorldPoint(touch.position);
-            }
-
             float horizontalMoveForce = x * horizontalForce;// * deltaTime;
+
+            float jump = Input.GetAxisRaw("Jump");
             float jumpMoveForce = jump * verticalForce; // * deltaTime;
-
-            float mass = rigidbody.mass * rigidbody.gravityScale;
-
-
             rigidbody.AddForce(new Vector2(horizontalMoveForce, jumpMoveForce) * mass);
-            rigidbody.velocity *= 0.99f; // scaling / stopping hack
+
+
         }
         else
         {
             // regulate the animation
             animController.SetInteger("AnimationState", (int)PlayerAnimState.JUMP);
+            if (x != 0)
+            {
+                x = FlipAnimation(x);
+                float horizontalMoveForce = x * horizontalForce * airControlFactor;// * deltaTime;
+                rigidbody.AddForce(new Vector2(horizontalMoveForce, 0.0f) * mass);
+
+            }
         }
 
     }
@@ -104,4 +113,18 @@ public class PlayerBehaviour : MonoBehaviour
         Gizmos.DrawWireSphere(groundOrigin.position, groundRadius);
     }
 
+    private void OnCollisionEnter2D(Collision2D other)
+    {
+        if (other.gameObject.layer == 6)
+        {
+            transform.SetParent(other.transform);
+        }
+    }
+    private void OnCollisionExit2D(Collision2D other)
+    {
+        if (other.gameObject.layer == 6)
+        {
+            transform.SetParent(null);
+        }
+    }
 }
