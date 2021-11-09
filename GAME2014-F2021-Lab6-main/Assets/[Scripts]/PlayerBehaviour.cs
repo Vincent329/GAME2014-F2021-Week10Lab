@@ -12,11 +12,15 @@ public class PlayerBehaviour : MonoBehaviour
     public float groundRadius;
     public LayerMask groundLayerMask;
 
+    [Header("Animation State")]
+    private Animator animController;
+
     private Rigidbody2D rigidbody;
 
     // Start is called before the first frame update
     void Start()
     {
+        animController = GetComponent<Animator>();
         rigidbody = GetComponent<Rigidbody2D>();
     }
 
@@ -43,8 +47,13 @@ public class PlayerBehaviour : MonoBehaviour
             if (x != 0)
             {
                 x = FlipAnimation(x);
-            } 
-            
+                animController.SetInteger("AnimationState", (int)PlayerAnimState.RUN);
+            }
+            else
+            {
+                animController.SetInteger("AnimationState", (int)PlayerAnimState.IDLE);
+            }
+
             // Touch Input
             Vector2 worldTouch = new Vector2();
             foreach (var touch in Input.touches)
@@ -61,11 +70,17 @@ public class PlayerBehaviour : MonoBehaviour
             rigidbody.AddForce(new Vector2(horizontalMoveForce, jumpMoveForce) * mass);
             rigidbody.velocity *= 0.99f; // scaling / stopping hack
         }
+        else
+        {
+            // regulate the animation
+            animController.SetInteger("AnimationState", (int)PlayerAnimState.JUMP);
+        }
 
     }
 
     private void CheckIfGrounded()
     {
+        // different kind of raycast
         RaycastHit2D hit = Physics2D.CircleCast(groundOrigin.position, groundRadius, Vector2.down, groundRadius, groundLayerMask);
 
         isGrounded = (hit) ? true : false;
@@ -82,7 +97,7 @@ public class PlayerBehaviour : MonoBehaviour
 
 
     // UTILITIES
-
+    // allows us to see the wiresphere in the editor
     private void OnDrawGizmos()
     {
         Gizmos.color = Color.green;
