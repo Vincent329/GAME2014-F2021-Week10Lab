@@ -104,15 +104,8 @@ public class PlayerBehaviour : MonoBehaviour
         return x;
     }
 
-
-    // UTILITIES
-    // allows us to see the wiresphere in the editor
-    private void OnDrawGizmos()
-    {
-        Gizmos.color = Color.green;
-        Gizmos.DrawWireSphere(groundOrigin.position, groundRadius);
-    }
-
+    // EVENTS
+  
     private void OnCollisionEnter2D(Collision2D other)
     {
         if (other.gameObject.layer == 6)
@@ -127,4 +120,13 @@ public class PlayerBehaviour : MonoBehaviour
             transform.SetParent(null);
         }
     }
+
+    // UTILITIES
+    // allows us to see the wiresphere in the editor
+    private void OnDrawGizmos()
+    {
+        Gizmos.color = Color.green;
+        Gizmos.DrawWireSphere(groundOrigin.position, groundRadius);
+    }
+
 }

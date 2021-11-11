@@ -26,12 +26,12 @@ public class MovingPlatformController : MonoBehaviour
 
     private void MovePlatform()
     {
-        Vector3 displacement = transform.position - new Vector3(startPosition.x, startPosition.y, 0);
-        float dispMag = displacement.magnitude;
-        if (Mathf.Abs(dispMag) >= distance)
-        {
-            isLooping = false;
-        }
+        //Vector3 displacement = transform.position - new Vector3(startPosition.x, startPosition.y, 0);
+        //float dispMag = displacement.magnitude;
+        //if (Mathf.Abs(dispMag) >= distance)
+        //{
+        //    isLooping = false;
+        //}
 
         if (isLooping)
         {
